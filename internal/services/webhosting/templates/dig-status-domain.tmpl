@@ -1,0 +1,27 @@
+🚀 Web Hosting Domain DNS Status: {{.ServiceName}}
+=======
+
+## Recommended IPs
+
+{{ with index .Result "recommendedIps" }}
+  {{ if or (index . "recommendedIpV4") (index . "recommendedIpV6") }}
+**Recommended IPv4**: {{ if index . "recommendedIpV4" }}{{ range $i, $ip := index . "recommendedIpV4" }}{{ if $i }}, {{ end }}{{$ip}}{{ end }}{{ else }}-{{ end }}
+**Recommended IPv6**: {{ if index . "recommendedIpV6" }}{{ range $i, $ip := index . "recommendedIpV6" }}{{ if $i }}, {{ end }}{{$ip}}{{ end }}{{ else }}-{{ end }}
+  {{ else }}
+_No recommended IPs_
+  {{ end }}
+{{ end }}
+
+## DNS Records
+
+{{ with index .Result "records" }}
+| IP Address            | Type  | DNS Configured | OVH IP | CAA Authorisation     |
+|---------------------- |-------|---------------|--------|----------------------|
+{{ range $ip, $rec := . -}}
+| {{$ip}} | {{index $rec "type"}} | {{if index $rec "dnsConfigured"}}✅{{else}}❌{{end}} | {{if index $rec "isOvhIp"}}✅{{else}}❌{{end}} | {{if index $rec "caaAuthorisation"}}{{index $rec "caaAuthorisation"}}{{else}}-{{end}} |
+{{ end }}
+{{ else }}
+_No DNS records_
+{{ end }}
+
+💡 Use option -o json or -o yaml to get the raw output with all information

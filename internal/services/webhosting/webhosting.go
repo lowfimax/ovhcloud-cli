@@ -22,9 +22,19 @@ var (
 	//go:embed templates/webhosting.tmpl
 	webhostingTemplate string
 
+	//go:embed templates/abuse-state.tmpl
+	abuseStateTemplate string
+
+	//go:embed templates/service-name-domain.tmpl
+	serviceNameDomainTemplate string
+
+	//go:embed templates/dig-status-domain.tmpl
+	digStatusDomainTemplate string
+
 	WebHostingSpec struct {
 		DisplayName string `json:"displayName,omitempty"`
 	}
+	WebHostingServiceName string
 )
 
 func ListWebHosting(_ *cobra.Command, _ []string) {
@@ -46,4 +56,40 @@ func EditWebHosting(cmd *cobra.Command, args []string) {
 		display.OutputError(&flags.OutputFormatConfig, "%s", err)
 		return
 	}
+}
+
+func GetAbuseStatus(_ *cobra.Command, args []string) {
+	common.ManageObjectRequestUntouchedURL(
+		fmt.Sprintf("/v1/hosting/web/%s/abuseState", url.PathEscape(args[0])), args[0], abuseStateTemplate,
+	)
+}
+
+func ListAttachedDomains(_ *cobra.Command, _ []string) {
+	if WebHostingServiceName == "" {
+		display.OutputError(&flags.OutputFormatConfig, "service name is required")
+		return
+	}
+	common.ManageListRequest(
+		fmt.Sprintf("/v1/hosting/web/%s/attachedDomain", url.PathEscape(WebHostingServiceName)), "", []string{"domain"}, flags.GenericFilters,
+	)
+}
+
+func GetAttachedDomainDetails(_ *cobra.Command, args []string) {
+	if WebHostingServiceName == "" {
+		display.OutputError(&flags.OutputFormatConfig, "service name is required")
+		return
+	}
+	common.ManageObjectRequestUntouchedURL(
+		fmt.Sprintf("/v1/hosting/web/%s/attachedDomain/%s", url.PathEscape(WebHostingServiceName), url.PathEscape(WebHostingServiceName)), args[0], serviceNameDomainTemplate,
+	)
+}
+
+func GetAttachedDomainDNSStatus(_ *cobra.Command, args []string) {
+	if WebHostingServiceName == "" {
+		display.OutputError(&flags.OutputFormatConfig, "service name is required")
+		return
+	}
+	common.ManageObjectRequestUntouchedURL(
+		fmt.Sprintf("/v1/hosting/web/%s/attachedDomain/%s/digStatus", url.PathEscape(WebHostingServiceName), url.PathEscape(args[0])), args[0], digStatusDomainTemplate,
+	)
 }

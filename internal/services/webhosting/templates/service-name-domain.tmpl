@@ -1,0 +1,18 @@
+🚀 Web Hosting Attached Domain: {{.ServiceName}}
+=======
+
+## Domain details
+
+**Domain**:        {{index .Result "domain"}}
+**Status**:        {{index .Result "status"}}
+**SSL enabled**:   {{index .Result "ssl"}}
+**CDN**:           {{index .Result "cdn"}}
+**Firewall**:      {{index .Result "firewall"}}
+**Path**:          {{index .Result "path"}}
+**Own log**:       {{index .Result "ownLog"}}
+**IP Location**:   {{if index .Result "ipLocation"}}{{index .Result "ipLocation"}}{{else}}-{{end}}
+**VCS Status**:    {{index .Result "vcsStatus"}}
+**Flushable**:     {{index .Result "isFlushable"}}
+
+
+💡 Use option -o json or -o yaml to get the raw output with all information

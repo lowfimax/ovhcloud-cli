@@ -88,6 +88,17 @@ func ManageObjectRequest(path, objectID, templateContent string) {
 	display.OutputObject(object, objectID, templateContent, &flags.OutputFormatConfig)
 }
 
+func ManageObjectRequestUntouchedURL(path, objectID, templateContent string) {
+
+	var object map[string]any
+	if err := httpLib.Client.Get(path, &object); err != nil {
+		display.OutputError(&flags.OutputFormatConfig, "error fetching %s: %s", path, err)
+		return
+	}
+
+	display.OutputObject(object, objectID, templateContent, &flags.OutputFormatConfig)
+}
+
 func CreateResource(cmd *cobra.Command, path, endpoint, defaultExample string,
 	cliParams any, openapiSpec []byte, mandatoryFields []string) (map[string]any, error) {
 	// Create object from parameters given on command line
