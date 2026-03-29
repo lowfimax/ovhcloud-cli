@@ -5,6 +5,7 @@
 package cmd
 
 import (
+	"github.com/ovh/ovhcloud-cli/internal/assets"
 	"github.com/ovh/ovhcloud-cli/internal/services/webhosting"
 	"github.com/spf13/cobra"
 )
@@ -82,21 +83,36 @@ func init() {
 		Run:   webhosting.GetAttachedDomainDNSStatus,
 	})
 
-	// Command to create a new attached domain of a WebHosting
-	webhostingDomainCreateCmd := &cobra.Command{
+	// Command to attach a new domain to a single WebHosting service-name
+	webhostingDomainCmd.AddCommand(getWebhostingDomainCreateCmd())
+
+	webhostingCmd.AddCommand(webhostingDomainCmd)
+
+	rootCmd.AddCommand(webhostingCmd)
+}
+
+func getWebhostingDomainCreateCmd() *cobra.Command {
+	createDomainCmd := &cobra.Command{
 		Use:   "create",
 		Short: "Create a new attached domain",
 		Long:  `TODO: Add long description`,
 		Run:   webhosting.CreateAttachedDomain,
 		Args:  cobra.NoArgs,
 	}
+	createDomainCmd.Flags().StringVar(&webhosting.AttachedDomainCreateFlags.CDN, "cdn", "", `CDN mode (e.g. "none")`)
+	createDomainCmd.Flags().StringVar(&webhosting.AttachedDomainCreateFlags.Domain, "domain", "", "Domain name to attach (required)")
+	createDomainCmd.Flags().BoolVar(&webhosting.AttachedDomainCreateFlags.Firewall, "firewall", false, `Firewall mode (e.g. "active")`)
+	createDomainCmd.Flags().StringVar(&webhosting.AttachedDomainCreateFlags.OwnLog, "own-log", "", "Domain used to separate logs")
+	createDomainCmd.Flags().StringVar(&webhosting.AttachedDomainCreateFlags.Path, "path", "", "Document root path for the attached domain")
+	createDomainCmd.Flags().BoolVar(&webhosting.AttachedDomainCreateFlags.SSL, "ssl", false, "Include the domain in the SSL certificate")
+	createDomainCmd.Flags().BoolVar(&webhosting.AttachedDomainCreateFlags.BypassDNSConfiguration, "bypass-dns-configuration", false, "If set, DNS zone will not be updated by the operation")
+	createDomainCmd.MarkFlagRequired("domain")
+	createDomainCmd.MarkFlagRequired("path")
+
 	// common flags for other means to define parameters
-	// addParameterFileFlags(webhostingDomainCreateCmd, false, assets.WebhostingOpenapiSchema, "/hosting/web/{serviceName}/attachedDomain", "post", webhosting.AttachedDomainCreateExample, nil)
-	// addInteractiveEditorFlag(webhostingDomainCreateCmd)
-	// markFlagsMutuallyExclusive(webhostingDomainCreateCmd, "from-file", "editor")
-	webhostingDomainCmd.AddCommand(webhostingDomainCreateCmd)
+	addParameterFileFlags(createDomainCmd, false, assets.WebhostingOpenapiSchema, "/hosting/web/{serviceName}/attachedDomain", "post", webhosting.AttachedDomainCreateExample, nil)
+	addInteractiveEditorFlag(createDomainCmd)
+	markFlagsMutuallyExclusive(createDomainCmd, "from-file", "editor")
 
-	webhostingCmd.AddCommand(webhostingDomainCmd)
-
-	rootCmd.AddCommand(webhostingCmd)
+	return createDomainCmd
 }

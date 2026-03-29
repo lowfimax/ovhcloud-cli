@@ -31,10 +31,23 @@ var (
 	//go:embed templates/dig-status-domain.tmpl
 	digStatusDomainTemplate string
 
+	//go:embed parameter-samples/domain-create.json
+	AttachedDomainCreateExample string
+
 	WebHostingSpec struct {
 		DisplayName string `json:"displayName,omitempty"`
 	}
 	WebHostingServiceName string
+
+	AttachedDomainCreateFlags struct {
+		CDN                    string `json:"cdn,omitempty"`
+		Domain                 string `json:"domain,omitempty"`
+		Firewall               bool   `json:"firewall,omitempty"`
+		OwnLog                 string `json:"ownLog,omitempty"`
+		Path                   string `json:"path,omitempty"`
+		SSL                    bool   `json:"ssl,omitempty"`
+		BypassDNSConfiguration bool   `json:"bypassDNSConfiguration,omitempty"`
+	}
 )
 
 func ListWebHosting(_ *cobra.Command, _ []string) {
@@ -92,4 +105,22 @@ func GetAttachedDomainDNSStatus(_ *cobra.Command, args []string) {
 	common.ManageObjectRequestUntouchedURL(
 		fmt.Sprintf("/v1/hosting/web/%s/attachedDomain/%s/digStatus", url.PathEscape(WebHostingServiceName), url.PathEscape(args[0])), args[0], digStatusDomainTemplate,
 	)
+}
+
+func CreateAttachedDomain(cmd *cobra.Command, args []string) {
+	createdDomain, err := common.CreateResource(
+		cmd,
+		"/hosting/web/{serviceName}/attachedDomain",
+		fmt.Sprintf("/v1/hosting/web/%s/attachedDomain", url.PathEscape(WebHostingServiceName)),
+		AttachedDomainCreateExample,
+		AttachedDomainCreateFlags,
+		assets.WebhostingOpenapiSchema,
+		[]string{"domain"},
+	)
+	if err != nil {
+		display.OutputError(&flags.OutputFormatConfig, "%s", err)
+		return
+	}
+	display.OutputInfo(&flags.OutputFormatConfig, createdDomain,
+		fmt.Sprintf("✅ Attached domain '%s' to service '%s' in progress...", AttachedDomainCreateFlags.Domain, WebHostingServiceName))
 }

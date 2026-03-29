@@ -1,0 +1,11 @@
+{
+    "cdn": "none",
+    "domain": "www.example.com",
+    "firewall": "active",
+    "ownLog": "example.com",
+    "path": "./example-path",
+    "runtimeId": null,
+    "ssl": true,
+    "bypassDNSConfiguration": false,
+    "ipLocation": null
+  }
